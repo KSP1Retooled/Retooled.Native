@@ -1,0 +1,99 @@
+name: Publish to UPM
+
+# When a release is published, pack the Unity package, sign it, attach it to the release, and add the release to the
+# KSP1Retooled registry (https://ksp1retooled.github.io/upm/). To publish an existing release again, run this workflow
+# by hand with its tag.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish
+        required: true
+
+env:
+  TAG: ${{ inputs.tag || github.event.release.tag_name }}
+
+jobs:
+  pack:
+    name: Pack the package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      filename: ${{ steps.pack.outputs.filename }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ env.TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: KSP1Retooled/upm/check-release@main
+        with:
+          tag: ${{ env.TAG }}
+          source: |
+            Native~/CMakeLists.txt
+            Native~/src
+          binaries: |
+            Plugins/x86_64/RetooledNative.dll
+            Plugins/x86_64/RetooledNative.so
+            Plugins/x86_64/RetooledNative.dylib
+
+      - id: pack
+        uses: KSP1Retooled/upm/pack@main
+        with:
+          expect: |
+            Plugins/x86_64/RetooledNative.dll
+            Plugins/x86_64/RetooledNative.dll.meta
+            Plugins/x86_64/RetooledNative.so
+            Plugins/x86_64/RetooledNative.so.meta
+            Plugins/x86_64/RetooledNative.dylib
+            Plugins/x86_64/RetooledNative.dylib.meta
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package
+          path: ${{ steps.pack.outputs.path }}
+          retention-days: 1
+
+  sign:
+    name: Sign the package
+    needs: pack
+    # A job of its own, so the signing key never reaches the job that checks out and packs the package.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: package
+          path: ${{ runner.temp }}/package
+
+      - id: sign
+        uses: KSP1Retooled/upm/sign@main
+        with:
+          tarball: ${{ runner.temp }}/package/${{ needs.pack.outputs.filename }}
+          organization-id: ${{ vars.UPM_ORG_ID }}
+          key-id: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_ID }}
+          key: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY }}
+
+      - name: Attach the package to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SIGNED: ${{ steps.sign.outputs.path }}
+        run: gh release upload --repo "$GITHUB_REPOSITORY" -- "$TAG" "$SIGNED"
+
+  publish:
+    name: Publish to the registry
+    needs: sign
+    permissions:
+      contents: read
+    uses: KSP1Retooled/upm/.github/workflows/publish.yml@main
+    with:
+      tag: ${{ inputs.tag || github.event.release.tag_name }}
+    secrets:
+      APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
