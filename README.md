@@ -5,16 +5,21 @@ Small native helpers for things that Unity's C# API doesn't expose. The package 
 
 ## Helpers
 
-### `Gpu.UnifiedMemory`
+### `SystemInfo.HasUnifiedMemory`
 
 Whether the GPU shares system memory instead of having VRAM of its own, as integrated GPUs and Apple's GPUs do. On
-such GPUs, `SystemInfo.graphicsMemorySize` can count most of system memory as VRAM, so a budget that is a fraction of
-it is far too large.
+such GPUs, `UnityEngine.SystemInfo.graphicsMemorySize` can count most of system memory as VRAM, so a budget that is a
+fraction of it is far too large.
 
 ```csharp
-if (Gpu.UnifiedMemory == true)
+using NativeSystemInfo = Retooled.Native.SystemInfo;
+
+if (NativeSystemInfo.HasUnifiedMemory == true)
     budget = minimumBudget;
 ```
+
+The class shares its name with `UnityEngine.SystemInfo`, so a file that also has `using UnityEngine;` needs an alias
+like the one above.
 
 The plugin asks Unity's own graphics device:
 
@@ -24,8 +29,7 @@ The plugin asks Unity's own graphics device:
 | Direct3D 11 | The device's `D3D11_FEATURE_D3D11_OPTIONS2` reports UMA. It needs Direct3D 11.3, from Windows 10. |
 | Vulkan | The physical device is an integrated GPU or a CPU. |
 | Metal | The device's `hasUnifiedMemory`. |
-| OpenGL on Linux | Mesa's `GLX_MESA_query_renderer` reports it for the default X screen. Other drivers, and Wayland without XWayland, give null. |
-| OpenGL on Windows | It can't, so the answer is null. |
+| OpenGL | It can't, so the answer is null. |
 
 The answer is also null before Unity has created its graphics device, which it has by the time
 `RuntimeInitializeLoadType.BeforeSceneLoad` methods run.
