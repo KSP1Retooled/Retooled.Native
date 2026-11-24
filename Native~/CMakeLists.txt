@@ -26,7 +26,7 @@ if(NOT EXISTS "${UNITY_PLUGIN_API}/IUnityGraphics.h")
     message(FATAL_ERROR "UNITY_PLUGIN_API must point at the editor's PluginAPI folder")
 endif()
 
-add_library(RetooledNative SHARED src/Plugin.cpp)
+add_library(RetooledNative SHARED src/plugin.cpp)
 target_include_directories(RetooledNative PRIVATE src "${UNITY_PLUGIN_API}")
 set_target_properties(RetooledNative PROPERTIES PREFIX "" CXX_VISIBILITY_PRESET hidden OBJCXX_VISIBILITY_PRESET hidden)
 
@@ -42,22 +42,19 @@ if(WIN32 OR (UNIX AND NOT APPLE))
             GIT_SHALLOW TRUE)
         FetchContent_MakeAvailable(VulkanHeaders)
     endif()
-    target_sources(RetooledNative PRIVATE src/GpuVulkan.cpp)
+    target_sources(RetooledNative PRIVATE src/vulkan.cpp)
     target_link_libraries(RetooledNative PRIVATE Vulkan::Headers)
 endif()
 
 if(WIN32)
-    target_sources(RetooledNative PRIVATE src/GpuD3D.cpp)
+    target_sources(RetooledNative PRIVATE src/dx11.cpp src/dx12.cpp)
     target_compile_definitions(RetooledNative PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 elseif(APPLE)
-    target_sources(RetooledNative PRIVATE src/GpuMetal.mm)
+    target_sources(RetooledNative PRIVATE src/metal.mm)
     target_link_libraries(RetooledNative PRIVATE "-framework Metal" "-framework Foundation")
 else()
     # Unity's Linux player does not load libstdc++, so the plug-in carries its own copy and keeps that copy's symbols
     # private, so that they cannot clash with another plug-in's. -z defs makes a missing library fail the link
     # instead of failing the load.
     target_link_options(RetooledNative PRIVATE -static-libstdc++ -Wl,--exclude-libs,ALL -Wl,-z,defs)
-    target_sources(RetooledNative PRIVATE src/GpuOpenGL.cpp)
-    # dlopen is in glibc 2.34's libc, so this adds no library on the player's glibc.
-    target_link_libraries(RetooledNative PRIVATE ${CMAKE_DL_LIBS})
 endif()

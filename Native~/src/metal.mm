@@ -1,13 +1,13 @@
-// Metal's API is Objective-C, and so is Unity's IUnityGraphicsMetal.h, so this file is
-// Objective-C++.
+
 #import <Metal/Metal.h>
 
-#include "Gpu.h"
+#include "retooled.h"
 #include "IUnityGraphicsMetal.h"
 
 namespace retooled {
+
 QueryResult
-MetalUnifiedMemory (IUnityInterfaces *interfaces)
+HasUnifiedMemoryMetal (IUnityInterfaces *interfaces)
 {
 	IUnityGraphicsMetalV1 *metal = UNITY_GET_INTERFACE (interfaces, IUnityGraphicsMetalV1);
 	if (metal == nullptr)
@@ -17,9 +17,9 @@ MetalUnifiedMemory (IUnityInterfaces *interfaces)
 	if (device == nil)
 		return QueryResult::Unknown;
 
-	if (!device.hasUnifiedMemory)
-		return QueryResult::No;
-
-	return QueryResult::Yes;
+	if (device.hasUnifiedMemory)
+		return QueryResult::True;
+	return QueryResult::False;
 }
+
 } // namespace retooled
