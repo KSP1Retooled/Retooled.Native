@@ -9,14 +9,15 @@ public static class Gpu
     /// </summary>
     ///
     /// <remarks>
-    /// Null when the graphics API doesn't say, as on OpenGL, or before Unity has created its graphics device. Direct3D
-    /// and Metal report it directly. On Vulkan, an integrated or software GPU counts as sharing memory.
+    /// Null before Unity has created its graphics device, and where the graphics API or driver doesn't say. Direct3D
+    /// and Metal report it directly. On Vulkan, an integrated or software GPU counts as sharing memory. On OpenGL,
+    /// only Mesa's drivers on Linux report it, through an X display.
     /// </remarks>
     public static bool? UnifiedMemory =>
         RetooledNative.RetooledNative_UnifiedMemory() switch
         {
-            RetooledNative.Answer.Yes => true,
-            RetooledNative.Answer.No => false,
+            RetooledNative.QueryResult.Yes => true,
+            RetooledNative.QueryResult.No => false,
             _ => null,
         };
 }

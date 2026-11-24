@@ -1,0 +1,126 @@
+# The coding style of KSP1Retooled's Mono fork (../mono), whose .clang-format this copies. Requires clang-format 18.
+#
+# The headline rules: tab indentation, a space before every opening paren (calls included), the return type of a
+# top-level definition on its own line, and the opening brace of a function on its own line while control statements
+# keep theirs on the same line.
+
+# No Language key, so the style covers both the C++ files and the Objective-C++ Metal file.
+Standard: c++17
+
+# Indentation ---------------------------------------------------------------
+UseTab: AlignWithSpaces
+TabWidth: 4
+IndentWidth: 4
+ContinuationIndentWidth: 4
+ConstructorInitializerIndentWidth: 4
+AccessModifierOffset: -4
+NamespaceIndentation: None
+IndentCaseLabels: false
+IndentGotoLabels: false
+IndentPPDirectives: None
+IndentExternBlock: NoIndent
+LambdaBodyIndentation: Signature
+
+ColumnLimit: 100
+
+# Braces --------------------------------------------------------------------
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+# Function signatures -------------------------------------------------------
+# `void\nfoo (int bar)\n{` for definitions, but declarations stay on one line.
+AlwaysBreakAfterReturnType: TopLevelDefinitions
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: All
+AllowShortEnumsOnASingleLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+BinPackArguments: true
+BinPackParameters: true
+AlignAfterOpenBracket: Align
+
+# Spacing -------------------------------------------------------------------
+# Always == a space before call, definition and control-statement parens.
+SpaceBeforeParens: Always
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: Never
+SpacesInContainerLiterals: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+Cpp11BracedListStyle: true
+
+# Pointers and references bind to the name: `MonoMethod *method`, `Module &m`.
+PointerAlignment: Right
+ReferenceAlignment: Right
+DerivePointerAlignment: false
+
+# Line breaking -------------------------------------------------------------
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeTernaryOperators: true
+BreakBeforeConceptDeclarations: Always
+BreakConstructorInitializers: BeforeColon
+PackConstructorInitializers: NextLine
+BreakInheritanceList: BeforeColon
+AlwaysBreakTemplateDeclarations: Yes
+BreakStringLiterals: false
+AlwaysBreakBeforeMultilineStrings: false
+CompactNamespaces: false
+
+# Alignment -----------------------------------------------------------------
+AlignConsecutiveAssignments: None
+AlignConsecutiveBitFields: None
+AlignConsecutiveDeclarations: None
+AlignConsecutiveMacros: None
+AlignEscapedNewlines: Left
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
+
+# Comments and includes -----------------------------------------------------
+ReflowComments: true
+FixNamespaceComments: true
+# Unity's plug-in headers need the platform headers before them, so includes keep their order.
+SortIncludes: Never
+IncludeBlocks: Preserve
+SortUsingDeclarations: false
+
+# Blank lines ---------------------------------------------------------------
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+EmptyLineBeforeAccessModifier: LogicalBlock
+EmptyLineAfterAccessModifier: Never
+SeparateDefinitionBlocks: Leave
+InsertNewlineAtEOF: true

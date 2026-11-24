@@ -16,6 +16,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_OBJCXX_STANDARD 20)
 
+# Editors read compile_commands.json for code completion. Only the Ninja and Makefile generators write it.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Unity's plug-in headers are licensed for Unity-dependent projects and change with each editor, so they are read
 # from the editor that builds the project instead of being copied here.
 set(UNITY_PLUGIN_API "" CACHE PATH "Editor/Data/PluginAPI of the project's Unity editor")
@@ -54,4 +57,7 @@ else()
     # private, so that they cannot clash with another plug-in's. -z defs makes a missing library fail the link
     # instead of failing the load.
     target_link_options(RetooledNative PRIVATE -static-libstdc++ -Wl,--exclude-libs,ALL -Wl,-z,defs)
+    target_sources(RetooledNative PRIVATE src/GpuOpenGL.cpp)
+    # dlopen is in glibc 2.34's libc, so this adds no library on the player's glibc.
+    target_link_libraries(RetooledNative PRIVATE ${CMAKE_DL_LIBS})
 endif()

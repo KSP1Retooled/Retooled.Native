@@ -24,7 +24,8 @@ The plugin asks Unity's own graphics device:
 | Direct3D 11 | The device's `D3D11_FEATURE_D3D11_OPTIONS2` reports UMA. It needs Direct3D 11.3, from Windows 10. |
 | Vulkan | The physical device is an integrated GPU or a CPU. |
 | Metal | The device's `hasUnifiedMemory`. |
-| OpenGL | It can't, so the answer is null. |
+| OpenGL on Linux | Mesa's `GLX_MESA_query_renderer` reports it for the default X screen. Other drivers, and Wayland without XWayland, give null. |
+| OpenGL on Windows | It can't, so the answer is null. |
 
 The answer is also null before Unity has created its graphics device, which it has by the time
 `RuntimeInitializeLoadType.BeforeSceneLoad` methods run.
@@ -35,9 +36,12 @@ The `Native plug-in` workflow (`.github/workflows/native.yml`) runs whenever a p
 builds the plugin on Windows, Linux and macOS, checks that each build links only to libraries that Unity's player also
 links to, and commits the three binaries to `Plugins/x86_64` on the branch that changed.
 
-To build the Windows plugin locally, run `Native~/build.ps1`. It needs CMake, Visual Studio's C++ tools, Python and
-the Unity editor that `Native~/unity-links.json` names. Pass `-PluginApi <editor>/Editor/Data/PluginAPI` to use
-another editor's plugin headers. Close any Unity editor that has loaded the plugin first, since it keeps the DLL open.
+To build the Windows plugin locally, run `Native~/build.ps1`. It needs CMake, Ninja, LLVM's clang-cl, the Windows SDK,
+Python and the Unity editor that `Native~/unity-links.json` names. Pass `-PluginApi <editor>/Editor/Data/PluginAPI` to
+use another editor's plugin headers. Close any Unity editor that has loaded the plugin first, since it keeps the DLL
+open. The build also writes `Native~/compile_commands.json`, which clangd and other editors read for code completion.
+
+Format the C++ with `clang-format -i Native~/src/*`, which reads `Native~/.clang-format`.
 
 `Native~/unity-links.json` records what Unity's players link to. When the project moves to a new Unity version, record
 it again from that editor's players:

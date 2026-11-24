@@ -1,3 +1,5 @@
 # npm pack reads this file instead of .gitignore.
 /.github/
 /Native~/build/
+/Native~/compile_commands.json
+/Native~/.cache/

@@ -7,8 +7,8 @@ internal static class RetooledNative
 {
     private const string Plugin = "RetooledNative";
 
-    /// <summary>Gpu.h's <c>Answer</c>.</summary>
-    internal enum Answer
+    /// <summary>Gpu.h's <c>QueryResult</c>.</summary>
+    internal enum QueryResult
     {
         Unknown = -1,
         No = 0,
@@ -16,5 +16,5 @@ internal static class RetooledNative
     }
 
     [DllImport(Plugin)]
-    internal static extern Answer RetooledNative_UnifiedMemory();
+    internal static extern QueryResult RetooledNative_UnifiedMemory();
 }
